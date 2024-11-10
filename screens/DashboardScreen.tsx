@@ -1,7 +1,10 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import AlertCard from "../components/AlertCard";
+import IncidentCard from "../components/IncidentCard";
+import { generateClient } from "aws-amplify/data";
+import { Schema } from "../amplify/data/resource";
+import { useEffect, useState } from "react";
 
 const Styles = StyleSheet.create({
     container: {
@@ -42,7 +45,7 @@ const Styles = StyleSheet.create({
         color: "#777777",
     },
     floatingButton: {
-        backgroundColor: "#b71c1c",
+        backgroundColor: "#C5050C",
         borderRadius: 50,
         padding: 20,
         elevation: 10,
@@ -56,8 +59,22 @@ const Styles = StyleSheet.create({
     },
 });
 
+const CLIENT = generateClient<Schema>();
+type Incident = Schema['Incident']['type'];
+
 export default function DashboardScreen() {
     const navigation = useNavigation<any>();
+
+    const [incidents, setIncidents] = useState<Incident[]>([]);
+
+    useEffect(() => {
+        const sub = CLIENT.models.Incident.observeQuery().subscribe({
+            next: ({items, isSynced}) => {
+                setIncidents([...items])
+            }
+        });
+        return () => sub.unsubscribe();
+    }, []);
 
     return (
         <View style={Styles.container}>
@@ -73,16 +90,10 @@ export default function DashboardScreen() {
                     alignItems: "center",
                 }}
             >
-                {[...Array(5)].map((_, index) => (
-                    <AlertCard
-                        key={index}
-                        alert={{
-                            category: "Category",
-                            subcategory: "Subcategory",
-                            severity: "Low",
-                            address: "Address",
-                            timestamp: "Timestamp",
-                        }}
+                {incidents.map((incident) => (
+                    <IncidentCard
+                        key={incident.id}
+                        incident={incident}
                     />
                 ))}
             </ScrollView>
@@ -93,7 +104,7 @@ export default function DashboardScreen() {
                 paddingTop: 20,
                 borderStyle: "solid",
                 borderTopWidth: 5,
-                borderColor: "#b71c1c",
+                borderColor: "#C5050C",
             }}>
                 <Pressable
                     style={Styles.floatingButton}

@@ -32,7 +32,7 @@ const STYLES = StyleSheet.create({
 interface DropdownProps {
     placeholder?: string;
     data: { label: string, value: string }[];
-    onChange?: (value: string) => void;
+    onChange?: (value: string|null) => void;
 }
 
 export default function Dropdown({placeholder, data, onChange }: DropdownProps) {

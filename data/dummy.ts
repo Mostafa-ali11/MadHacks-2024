@@ -1,32 +1,40 @@
 export const DUMMY_DATA = {
     "categories": [
         {
-            "title":"Option 1",
-            "id":"0",
+            "title": "Suspicious Activity",
+            "id": "0",
             "subcategories": [
                 {
-                    "title":"Option 1.1",
-                    "id":"0",
+                    "title": "Unfamiliar Person Loitering",
+                    "id": "0",
                 },
                 {
-                    "title":"Option 1.2",
-                    "id":"1",
+                    "title": "Following or Stalking Behavior",
+                    "id": "1",
+                },
+                {
+                    "title": "Unattended Bag or Item",
+                    "id": "2",
                 }
             ]
         },
         {
-            "title":"Option 2",
-            "id":"1",
+            "title": "Unsafe Area Conditions",
+            "id": "1",
             "subcategories": [
                 {
-                    "title":"Option 2.1",
-                    "id":"0",
+                    "title": "Poor Lighting",
+                    "id": "0",
                 },
                 {
-                    "title":"Option 2.2",
-                    "id":"1",
+                    "title": "Construction with Limited Path",
+                    "id": "1",
+                },
+                {
+                    "title": "Blocked or Isolated Pathway",
+                    "id": "2",
                 }
             ]
-        }
+        },
     ]
 };

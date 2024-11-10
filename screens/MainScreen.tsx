@@ -15,9 +15,9 @@ export default function MainScreen() {
             <Stack.Navigator initialRouteName="Dashboard">
                 <Stack.Screen name="Dashboard" component={DashboardScreen} 
                 options={{
-                    title: 'Latest Incidents',
+                    title: 'Reported Incidents',
                     headerStyle: {
-                      backgroundColor: '#b71c1c',
+                      backgroundColor: '#C5050C',
                       height: 120,
                     },
                     headerTintColor: '#fff',
@@ -31,7 +31,7 @@ export default function MainScreen() {
                     options={{
                         title: 'Report Incident',
                         headerStyle: {
-                          backgroundColor: '#b71c1c',
+                          backgroundColor: '#C5050C',
                           height: 120,
                         },
                         headerTintColor: '#fff',

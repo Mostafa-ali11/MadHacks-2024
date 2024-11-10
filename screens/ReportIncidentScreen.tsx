@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import Dropdown from '../components/Dropdown';
 import { DUMMY_DATA } from '../data/dummy';
+import { generateClient } from 'aws-amplify/data';
+import { Schema } from '../amplify/data/resource';
+import { useAuthenticator } from '@aws-amplify/ui-react-native';
 
 const STYLES = StyleSheet.create({
     container: {
@@ -25,7 +28,7 @@ const STYLES = StyleSheet.create({
         fontSize: 18,
         fontWeight: "medium",
     },
-    detailsGroup:{
+    detailsGroup: {
         width: '90%',
         justifyContent: "center",
         alignItems: "center",
@@ -34,79 +37,115 @@ const STYLES = StyleSheet.create({
     button: {
         backgroundColor: "#C5050C",
         borderRadius: 20,
-        paddingHorizontal:60,
+        paddingHorizontal: 60,
         paddingVertical: 20,
         elevation: 2
     },
     buttonText: {
         fontSize: 16,
-        color: "#fff",
+        color: "#ffffff",
         fontWeight: "bold",
         alignSelf: "center",
+    },
+    buttonDisabled: {
+        backgroundColor: "#A9A9A9",
+        elevation: 0,
+    },
+    buttonTextDisabled: {
+        color: "#D3D3D3",
     }
 });
+
+const CLIENT = generateClient<Schema>();
 
 export default function ReportIncidentScreen() {
     const [location, setLocation] = useState<Location.LocationObject | null>(null);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
-    const [categoryId, setCategoryId] = useState<string>("0");
-    const [subcategoryId, setSubcategoryId] = useState<string>("0");
-    const [severity, setSeverity] = useState<"Low"|"Medium"|"High">("Low");
+    const [category, setCategory] = useState<string | null>(null);
+    const [subCategory, setSubCategory] = useState<string | null>(null);
 
-    // Request permission to access location
-    // Get the current location
+    const AUTH = useAuthenticator();
+
     useEffect(() => {
         (async () => {
-          
-          let { status } = await Location.requestForegroundPermissionsAsync();
-          if (status !== 'granted') {
-            setErrorMsg('Permission to access location was denied');
-            return;
-          }
-    
-          let location = await Location.getCurrentPositionAsync({});
-          setLocation(location);
-        })();
-      }, []);
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                setErrorMsg('Permission to access location was denied');
+                return;
+            }
 
-      // Get the categories and subcategories
-      const CATEGORIES = DUMMY_DATA.categories.map((category) => ({label: category.title, value: category.id}));
-      const SUBCATEGORIES = DUMMY_DATA.categories.find((c) => c.id === categoryId)?.subcategories.map((subcategory) => ({label: subcategory.title, value: subcategory.id}));      
+            let location = await Location.getCurrentPositionAsync({});
+            setLocation(location);
+        })();
+    }, []);
+
+    const CATEGORIES = DUMMY_DATA
+        .categories
+        .map((category) => ({ label: category.title, value: category.title }));
+
+    const SUBCATEGORIES = DUMMY_DATA
+        .categories
+        .find((c) => c.title === category)
+        ?.subcategories.map(
+            (subcategory) => ({ label: subcategory.title, value: subcategory.title })
+        );
+
+    const isDisabled = !category;
+
+    const handleSubmission = async () => {
+        if (isDisabled) {
+            console.error("Category is required to submit incident.");
+            return;
+        }
+        
+        try {
+            console.log("Submitting incident...");
+            
+            const res = await CLIENT.models.Incident.create({
+                category: category,
+                subcategory: subCategory,
+                location: {
+                    latitude: location?.coords.latitude || -1,
+                    longitude: location?.coords.longitude || -1
+                },
+                timestamp: new Date().toISOString(),
+                reporterID: AUTH.user?.userId || ""
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     return (
         <View style={STYLES.container}>
+
             <View style={STYLES.titleGroup}>
-              <Text style={STYLES.title}>Incident Details:</Text>
-              <Text style={STYLES.subtitle}>Location: {location?.coords.latitude}, {location?.coords.longitude}</Text>
+                <Text style={STYLES.title}>Incident Details:</Text>
+                <Text style={STYLES.subtitle}>Location: {location?.coords.latitude}, {location?.coords.longitude}</Text>
             </View>
+
             <View style={STYLES.detailsGroup}>
-              <Dropdown
-                placeholder='Select incident category'
-                data={CATEGORIES}
-                onChange={(value) => setCategoryId(value)}
-              />
+                <Dropdown
+                    placeholder='Select incident category'
+                    data={CATEGORIES}
+                    onChange={(value) => setCategory(value)}
+                />
 
-              <Dropdown
-                placeholder='Select incident subcategory'
-                data={SUBCATEGORIES || []}
-                onChange={(value) => setSubcategoryId(value)}
-              />
-
-              <Dropdown
-                placeholder='Select incident severity'
-                data={[
-                    {label: 'Low', value: 'Low'},
-                    {label: 'Medium', value: 'Medium'},
-                    {label: 'High', value: 'High'},
-                ]}
-                onChange={(value) => setSeverity(value as "Low"|"Medium"|"High")}
-              />
+                <Dropdown
+                    placeholder='Select incident subcategory'
+                    data={SUBCATEGORIES || []}
+                    onChange={(value) => setSubCategory(value)}
+                />
             </View>
+
             <Pressable
-              style={STYLES.button}
-              onPress={() => console.log({categoryId, subcategoryId, severity, location})}
+                style={[STYLES.button, isDisabled && STYLES.buttonDisabled]}
+                onPress={handleSubmission}
+                disabled={isDisabled}
             >
-              <Text style={STYLES.buttonText}>Submit</Text>
+                <Text style={[STYLES.buttonText, isDisabled && STYLES.buttonTextDisabled]}>
+                    Submit
+                </Text>
             </Pressable>
         </View>
     );
