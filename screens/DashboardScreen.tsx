@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { Button, StyleSheet, Text, View } from "react-native";
 
 const Styles = StyleSheet.create({
     container: {
@@ -9,9 +10,17 @@ const Styles = StyleSheet.create({
 });
 
 export default function DashboardScreen() {    
+    const NAVIGATION = useNavigation<any>();
+    
     return (
         <View style={Styles.container}>
             <Text>Dashboard</Text>
+            <Button
+                title="Report Incident"
+                onPress={()=>{
+                    NAVIGATION.navigate("Report")
+                }}
+            />
         </View>
     );
 }
