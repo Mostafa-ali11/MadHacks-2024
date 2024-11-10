@@ -4,9 +4,7 @@ import { NavigationContainer } from "@react-navigation/native";
 
 const Stack = createStackNavigator();
 
-export default function MainScreen() {
-    console.log("MainScreen");
-    
+export default function MainScreen() {    
     return (
         <NavigationContainer>
             <Stack.Navigator>

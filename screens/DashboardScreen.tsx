@@ -8,9 +8,7 @@ const Styles = StyleSheet.create({
     },
 });
 
-export default function DashboardScreen() {
-    console.log("DashboardScreen");
-    
+export default function DashboardScreen() {    
     return (
         <View style={Styles.container}>
             <Text>Dashboard</Text>
