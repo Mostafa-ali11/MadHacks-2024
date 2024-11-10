@@ -1,10 +1,11 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import IncidentCard from "../components/IncidentCard";
 import { generateClient } from "aws-amplify/data";
-import { Schema } from "../amplify/data/resource";
 import { useEffect, useState } from "react";
+import { Pressable, StyleSheet, View } from "react-native";
+import { Schema } from "../amplify/data/resource";
+import IncidentsList from "../components/IncidentsList";
+import NoIncidents from "../components/NoIncidents";
 
 const Styles = StyleSheet.create({
     container: {
@@ -64,39 +65,20 @@ type Incident = Schema['Incident']['type'];
 
 export default function DashboardScreen() {
     const navigation = useNavigation<any>();
-
     const [incidents, setIncidents] = useState<Incident[]>([]);
 
     useEffect(() => {
         const sub = CLIENT.models.Incident.observeQuery().subscribe({
             next: ({items, isSynced}) => {
-                setIncidents([...items])
-            }
+                setIncidents([...items].reverse())
+            },
         });
         return () => sub.unsubscribe();
     }, []);
 
     return (
         <View style={Styles.container}>
-            {/* Alerts List */}
-            <ScrollView
-                style={{
-                    width: "100%",
-                    flex: 1,
-                }}
-                contentContainerStyle={{
-                    paddingVertical: 20,
-                    rowGap: 20,
-                    alignItems: "center",
-                }}
-            >
-                {incidents.map((incident) => (
-                    <IncidentCard
-                        key={incident.id}
-                        incident={incident}
-                    />
-                ))}
-            </ScrollView>
+            { incidents.length > 0 ? <IncidentsList incidents={incidents}/> : <NoIncidents/> }
             <View style={{
                 width: "100%",
                 alignItems: "center",
