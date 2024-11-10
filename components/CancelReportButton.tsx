@@ -11,6 +11,7 @@ export default function CancelReportButton() {
             onPress={()=>{
                 NAVIGATION.goBack()
             }}
+             color="#fff"
         /> : null
     );
 }
