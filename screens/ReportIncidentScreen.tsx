@@ -1,6 +1,6 @@
 import * as Location from 'expo-location';
 import { useEffect, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View, Alert } from "react-native";
 import Dropdown from '../components/Dropdown';
 import { DUMMY_DATA } from '../data/dummy';
 import { generateClient } from 'aws-amplify/data';
@@ -101,7 +101,7 @@ export default function ReportIncidentScreen() {
         try {
             console.log("Submitting incident...");
             
-            const res = await CLIENT.models.Incident.create({
+            await CLIENT.models.Incident.create({
                 category: category,
                 subcategory: subCategory,
                 location: {
@@ -111,6 +111,13 @@ export default function ReportIncidentScreen() {
                 timestamp: new Date().toISOString(),
                 reporterID: AUTH.user?.userId || ""
             });
+
+            // Reset form
+            setCategory(null);
+            setSubCategory(null);
+
+            // Alert success
+            Alert.alert("🎉 Report submitted successfully! Thank you for helping keep everyone safe.");
         } catch (error) {
             console.error(error);
         }
@@ -129,12 +136,14 @@ export default function ReportIncidentScreen() {
                     placeholder='Select incident category'
                     data={CATEGORIES}
                     onChange={(value) => setCategory(value)}
+                    value={category}
                 />
 
                 <Dropdown
                     placeholder='Select incident subcategory'
                     data={SUBCATEGORIES || []}
                     onChange={(value) => setSubCategory(value)}
+                    value={subCategory}
                 />
             </View>
 

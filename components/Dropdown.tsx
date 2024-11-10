@@ -33,9 +33,10 @@ interface DropdownProps {
     placeholder?: string;
     data: { label: string, value: string }[];
     onChange?: (value: string|null) => void;
+    value: string|null;
 }
 
-export default function Dropdown({placeholder, data, onChange }: DropdownProps) {
+export default function Dropdown({placeholder, data, onChange, value }: DropdownProps) {
     return (
         <View style={STYLES.container}>
             <RNPickerSelect
@@ -49,6 +50,7 @@ export default function Dropdown({placeholder, data, onChange }: DropdownProps) 
                 Icon={() => {
                     return <View style={STYLES.icon} />;
                 }}
+                value={value}
             />
         </View>
     );
